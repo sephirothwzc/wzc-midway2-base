@@ -7,3 +7,19 @@
 export const security = {
   csrf: false,
 };
+
+export const sequelize = {
+  options: {
+    port: 53306,
+    host: 'rm-8vb5a7c204kxc3g93wo.mysql.zhangbei.rds.aliyuncs.com',
+    database: 'auth_center_dev',
+    username: 'root_develop',
+    password: 'eegDed-gbdacu3-ntuplw',
+    encrypt: false,
+    dialect: 'mysql',
+    define: { charset: 'utf8' },
+    timezone: '+08:00',
+    logging: console.log,
+  },
+  sync: false, // 本地的时候，可以通过sync: true直接createTable
+};

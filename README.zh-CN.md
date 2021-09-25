@@ -29,3 +29,24 @@ $ npm stop
 - 使用 `npm test` 来执行单元测试。
 
 [midway]: https://midwayjs.org
+
+### 功能 sql
+
+- 拼凑批量删除主外键 sql 脚本
+
+```sql
+SELECT
+    CONCAT( 'ALTER TABLE `', table_name, '` DROP FOREIGN KEY `', CONSTRAINT_NAME, '`;' ) AS 'drop'
+FROM
+    INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS
+WHERE
+    CONSTRAINT_SCHEMA = 'member_dev'
+```
+
+- 拼凑批量删除表 脚本
+
+```sql
+Select CONCAT( 'drop table ', table_name, ';' )
+FROM information_schema.tables
+Where table_schema= 'member_Dev' and  table_nameLIKE '模糊表名%';
+```
