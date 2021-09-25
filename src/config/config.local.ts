@@ -12,7 +12,7 @@ export const sequelize = {
   options: {
     port: 53306,
     host: 'rm-8vb5a7c204kxc3g93wo.mysql.zhangbei.rds.aliyuncs.com',
-    database: 'auth_center_dev',
+    database: 'member_dev',
     username: 'root_develop',
     password: 'eegDed-gbdacu3-ntuplw',
     encrypt: false,
