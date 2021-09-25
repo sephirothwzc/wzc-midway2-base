@@ -9,6 +9,7 @@
 ### 本地开发
 
 ```bash
+# 安装
 $ npm i
 $ npm run dev
 $ open http://localhost:7001/
@@ -17,6 +18,7 @@ $ open http://localhost:7001/
 ### 部署
 
 ```bash
+# 启动命令
 $ npm start
 $ npm stop
 ```
@@ -25,6 +27,5 @@ $ npm stop
 
 - 使用 `npm run lint` 来做代码风格检查。
 - 使用 `npm test` 来执行单元测试。
-
 
 [midway]: https://midwayjs.org
