@@ -43,6 +43,7 @@
   "scripts": {
     "umzug:h": "node database/migrator.js -h",
     "umzug:u": "node database/migrator.js up",
+    "umzug:d": "node database/migrator.js down",
     "umzug": "node database/migrator.js create",
     "commit": "git add . && git-cz && git push",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0",

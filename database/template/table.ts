@@ -2,7 +2,7 @@
 /* eslint-disable node/no-unpublished-import */
 import { MigrationFn } from 'umzug';
 import { Sequelize } from 'sequelize/types/lib/sequelize';
-// import { DataTypes } from 'sequelize/types';
+// import { DataTypes } from 'sequelize';
 import defaultCloumns from '../utils/default-cloumns';
 
 export const up: MigrationFn<Sequelize> = async ({ context: sequelize }) => {
