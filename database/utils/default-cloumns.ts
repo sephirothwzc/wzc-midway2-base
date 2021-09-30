@@ -1,7 +1,7 @@
 // eslint-disable-next-line node/no-unpublished-import
 import Sequelize from 'sequelize';
 
-const { DATE, STRING } = Sequelize;
+const { DATE, STRING, INTEGER } = Sequelize;
 
 export default {
   id: { type: STRING(50), primaryKey: true },
@@ -39,4 +39,20 @@ export default {
     type: STRING(500),
     comment: '备注',
   },
+  version: {
+    type: INTEGER,
+    comment: 'BaseTable.version',
+  },
+};
+
+export const references = (tableName: string, keyName = 'id') => {
+  if (process.env.NODE_ENV === 'production') {
+    return undefined;
+  }
+  return {
+    model: {
+      tableName,
+    },
+    keyName,
+  };
 };
