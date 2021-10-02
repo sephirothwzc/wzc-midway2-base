@@ -5,16 +5,35 @@
  * @Last Modified time: 2020-12-02 19:12:49
  */
 import { Provide, Inject, Config } from '@midwayjs/decorator';
-import { CreateOptions, Transaction } from 'sequelize';
+import { Transaction } from 'sequelize';
 import { SnowFlake } from '../utils/flake-id';
 import Bb from 'bluebird';
-import { camelCase, get, keys, set } from 'lodash';
-import { Model } from 'sequelize-typescript';
+import { mapKeys, set } from 'lodash';
 import { ILogger } from '@midwayjs/logger';
 import QueryListParam from '../../graphql/utils/query-list-param.gql';
+import { SequelizeQuery } from '../../graphql/utils/sequelize-query';
+import { Model } from 'sequelize-typescript';
+import { AuthToken } from '../utils/auth-token';
+
+export const KEY = 'id';
+export const UPDATEDID = 'updatedId';
+export const CREATEDID = 'createdId';
+
+export type ModelStatic = Model &
+  typeof Model & {
+    new (): Model;
+  };
 
 @Provide()
-export abstract class ServiceGenericBase<T extends Model> {
+export abstract class ServiceGenericBase<T extends ModelStatic> {
+  /**
+   * 获取当前model 泛型对象
+   */
+  abstract get Entity(): T;
+
+  @Inject()
+  authToken: AuthToken;
+
   @Inject()
   snowFlake: SnowFlake;
 
@@ -22,75 +41,72 @@ export abstract class ServiceGenericBase<T extends Model> {
   serviceParam: { defalutLimit: number };
 
   @Inject()
+  sequelizeQuery: SequelizeQuery;
+
+  /**
+   * context 级别
+   */
+  @Inject()
   logger: ILogger;
+
+  /**
+   * 权限
+   */
+  get auth() {
+    return this.authToken.Auth;
+  }
 
   /**
    * 参数处理 where _ 转 Op
    * @param param
    */
-  private findParamUtils(param: QueryListParam, oneLimit = true) {
+  private findParamUtils(param: QueryListParam) {
     const squelizeParam = {
       order: param?.order || [['id', 'DESC']],
       limit: param?.limit || this.serviceParam.defalutLimit,
       offset: param?.offset,
-      where: param?.where,
+      where: this.sequelizeQuery.where(param?.where),
     };
-
-    oneLimit && set(squelizeParam, 'limit', get(param, 'limit', 1000));
-    oneLimit &&
-      get(param, 'offset') &&
-      set(squelizeParam, 'offset', param.offset);
-    get(param, 'where') &&
-      set(squelizeParam, 'where', this.sequelizeQuery.where(param.where));
     return squelizeParam;
   }
 
   /**
    * @deprecated
    */
-  async findList(param: IQueryListParam): Promise<T[]> {
+  async findList(param: QueryListParam): Promise<Array<T>> {
     const squelizeParam = this.findParamUtils(param);
-    return this.Model.findAll(squelizeParam) as any;
+    return this.Entity.findAll(squelizeParam) as any;
   }
 
-  async findAll(param: IQueryListParam): Promise<T[]> {
+  async findAll(param: QueryListParam): Promise<Array<T>> {
     const squelizeParam = this.findParamUtils(param);
-    return this.Model.findAll(squelizeParam) as any;
+    return this.Entity.findAll(squelizeParam) as any;
   }
 
-  async findOne<T>(param: IQueryListParam): Promise<T> {
-    const squelizeParam = this.findParamUtils(param, false);
-    return this.Model.findOne(squelizeParam) as any;
+  async findOne(param: QueryListParam): Promise<T> {
+    const squelizeParam = this.findParamUtils(param);
+    return this.Entity.findOne(squelizeParam) as any;
   }
 
-  async findCount(param: IQueryListParam): Promise<number> {
+  async findCount(param: QueryListParam): Promise<number> {
     const squelizeParam = this.findParamUtils(param);
-    return this.Model.count(squelizeParam);
+    return this.Entity.count(squelizeParam);
   }
 
   async findByPk<T>(id: string): Promise<T> {
-    return this.Model.findByPk(id) as any;
+    return this.Entity.findByPk(id) as any;
   }
 
   /**
    * 记录操作人id
    * @param param
    */
-  hookSave(param: T) {
-    const id = get(this.auth, 'id');
-    set(param, BASEMODEL.UPDATEDID, id);
-    param.id || param.createdId || set(param, BASEMODEL.CREATEDID, id);
-  }
-
-  /**
-   * 是否启用事务
-   * @param param
-   */
-  private enableTransaction(options?: { hookName?: HooksName }): boolean {
-    if (options) {
-      return this.Model.hasHook(options.hookName);
-    }
-    return false;
+  hookSave(param: T): T {
+    set(param, UPDATEDID, this.auth.id);
+    param.get(KEY) ||
+      param.get(CREATEDID) ||
+      param.set(CREATEDID, this.auth.id);
+    return param;
   }
 
   /**
@@ -98,11 +114,11 @@ export abstract class ServiceGenericBase<T extends Model> {
    * @param param
    * @param must
    */
-  private async ormUpdate(param: T, t?: Transaction): Promise<T> {
-    return await this.Model.findByPk(param.id, { transaction: t }).then(
+  private async update(param: T, t?: Transaction): Promise<T> {
+    return await this.Entity.findByPk(param.id, { transaction: t }).then(
       (result: T) => {
         if (!result) {
-          throw new Error(`[${param.id}]不存在！`);
+          throw new Error(`[${param.get(KEY)}]不存在！`);
         }
         this.setChange(result, param);
         // 子表更新
@@ -111,76 +127,17 @@ export abstract class ServiceGenericBase<T extends Model> {
     );
   }
 
-  /**
-   * update
-   * @param param
-   */
-  private async update(param: T): Promise<T> {
-    const tran = this.enableTransaction({
-      hookName: HooksName.beforeUpdate,
-    });
-    let result: T;
-    if (tran) {
-      result = await this.db.sequelize.transaction((t: Transaction) => {
-        return this.ormUpdate(param, t);
-      });
-    } else {
-      result = await this.ormUpdate(param);
-    }
-    return result;
-  }
-
-  /**
-   * find operation.incloud
-   * @param param
-   * @returns
-   */
-  async findCreateOptions(
-    param: T
-  ): Promise<{ include?: [any]; transaction?: any; validate?: boolean }> {
-    const context: IApplicationContext =
-      this.ctx.requestContext.applicationContext;
-    const has: boolean = context.registry.identifiers.includes(
-      `${camelCase(this.Model.name)}.createOptions`
-    );
-    if (!has) {
-      return {};
-    }
-    const createOptions: (param: T) => {
-      include?: [any];
-      transaction?: any;
-      validate?: boolean;
-    } = await context.getAsync(`${camelCase(this.Model.name)}.createOptions`);
-    return createOptions(param);
-  }
-
-  private setChange(resultModel: any, param: T) {
-    keys(param).forEach(k => {
-      resultModel.set(k, param[k]);
-    });
+  private setChange(resultModel: T, param: T) {
+    mapKeys(param, (value, key) => resultModel.set(key, value));
   }
 
   /**
    * 保存
    * @param param model
    */
-  async save(param: T): Promise<string> {
-    const model = await this.saveReturnObj(param);
-    return model.id;
-  }
-
-  /**
-   * 保存返回对象
-   * @param param
-   * @returns
-   */
-  async saveReturnObj(param: T): Promise<T> {
+  async save(param: T, t?: Transaction): Promise<T> {
     this.hookSave(param);
-    // 修改
-    if (param.id) {
-      return this.update(param);
-    }
-    return this.create(param);
+    return param?.id ? this.update(param, t) : this.create(param, t);
   }
 
   /**
@@ -188,25 +145,10 @@ export abstract class ServiceGenericBase<T extends Model> {
    * @param param
    * @returns
    */
-  async create(param: T, useOptions?: CreateOptions): Promise<T> {
-    // 获取createOptions
-    const options = await this.findCreateOptions(param);
-    const tran = this.enableTransaction({
-      hookName: HooksName.beforeCreate,
-    });
-    // 默认事务
-    if ((!useOptions && options.include && !options.transaction) || tran) {
-      return (await this.db.sequelize.transaction((t: Transaction) => {
-        return this.Model.create(param, {
-          ...options,
-          transaction: t,
-        });
-      })) as T;
-    }
-    return (await this.Model.create(param, {
-      ...options,
-      ...useOptions,
-    })) as T;
+  async create(param: T, t?: Transaction): Promise<T> {
+    return this.Entity.create(param, {
+      transaction: t,
+    }) as any;
   }
 
   /**
@@ -217,12 +159,12 @@ export abstract class ServiceGenericBase<T extends Model> {
    */
   public async useTransaction(
     fun: (t: Transaction) => any,
-    useOptions?: CreateOptions
+    useOptions?: { transaction: Transaction }
   ) {
     if (useOptions) {
       return await fun(useOptions.transaction);
     }
-    return await this.db.sequelize.transaction(async (t: Transaction) => {
+    return await this.Entity.sequelize.transaction(async (t: Transaction) => {
       return await fun(t);
     });
   }
@@ -233,8 +175,8 @@ export abstract class ServiceGenericBase<T extends Model> {
    * @returns
    */
   async bulkCreate(param: Array<T>): Promise<Array<T>> {
-    param.forEach(p => this.hookSave(p));
-    return this.Model.bulkCreate(param) as any;
+    const value = param.map(p => this.hookSave(p));
+    return this.Entity.bulkCreate(value) as any;
   }
 
   /**
@@ -242,7 +184,7 @@ export abstract class ServiceGenericBase<T extends Model> {
    * @param param
    */
   async bulkUpdate(param: Array<T>): Promise<Array<T>> {
-    return Bb.map(param, p => this.ormUpdate(p));
+    return Bb.map(param, p => this.update(p));
   }
 
   /**
@@ -267,7 +209,7 @@ export abstract class ServiceGenericBase<T extends Model> {
    * @returns
    */
   async destroy(where: any, limit: number, force = false): Promise<number> {
-    return this.Model.destroy({ where, limit, force });
+    return this.Entity.destroy({ where, limit, force });
   }
 
   /**
@@ -275,25 +217,11 @@ export abstract class ServiceGenericBase<T extends Model> {
    * @param id
    * @returns
    */
-  async destroyById(id: string) {
-    const model: T = (await this.Model.findByPk(id)) as T;
-    if (!model) {
-      throw new Error(`[${id}]不存在，请确认！`);
-    }
-    return model
-      .destroy()
-      .then(() => {
-        return id;
-      })
-      .catch((error: Error) => {
+  async destroyById(id: string): Promise<void> {
+    return this.Entity.findByPk(id)
+      .then(result => result.destroy())
+      .catch(error => {
         throw error;
       });
   }
-}
-
-enum HooksName {
-  beforeUpdate = 'beforeUpdate',
-  beforeCreate = 'beforeCreate',
-  beforeBulkDestroy = 'beforeBulkDestroy',
-  beforeDestroy = 'beforeDestroy',
 }

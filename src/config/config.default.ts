@@ -7,6 +7,10 @@ export type DefaultConfig = PowerPartial<EggAppConfig>;
 export default (appInfo: EggAppInfo) => {
   const config = {} as DefaultConfig;
 
+  config.jwt = {
+    secret: '!QAZ2wsx#EDC',
+  };
+
   // #region graphql
   const graphql: CreateGraphQLMiddlewareOption = {
     schema: {

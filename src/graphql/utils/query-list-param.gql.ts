@@ -7,8 +7,8 @@ export default class QueryListParam {
   @Field(() => GraphQLJSONObject, { description: '查询条件 Op = _' })
   where?: Record<string, unknown>;
 
-  @Field(() => [[String]], { description: '排序 ASC DESC' })
-  order?: [[string]];
+  @Field(() => [[String, String]], { description: '排序 ASC DESC' })
+  order?: [[string, string]];
 
   @IsNumber()
   @Min(0)
