@@ -19,17 +19,16 @@ export const KEY = 'id';
 export const UPDATEDID = 'updatedId';
 export const CREATEDID = 'createdId';
 
-export type ModelStatic = Model &
-  typeof Model & {
-    new (): Model;
-  };
+export type ModelStatic = typeof Model & {
+  new (): Model;
+};
 
 @Provide()
-export abstract class ServiceGenericBase<T extends ModelStatic> {
+export default abstract class ServiceGenericBase<T extends Model> {
   /**
    * 获取当前model 泛型对象
    */
-  abstract get Entity(): T;
+  abstract get Entity(): ModelStatic;
 
   @Inject()
   authToken: AuthToken;
