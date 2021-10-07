@@ -1,25 +1,24 @@
 import { EggAppConfig, EggAppInfo, PowerPartial } from 'egg';
 import { CreateGraphQLMiddlewareOption } from 'apollo-server-midway';
-import path from 'path';
+// import path from 'path';
+import AppUserResolver from '../resolver/app-user.resolver';
 
 export type DefaultConfig = PowerPartial<EggAppConfig>;
 
 export default (appInfo: EggAppInfo) => {
   const config = {} as DefaultConfig;
-
   config.jwt = {
     secret: '!QAZ2wsx#EDC',
   };
 
   // #region graphql
-  const graphql: CreateGraphQLMiddlewareOption = {
+  config.graphql = {
     schema: {
-      resolvers: [path.resolve(appInfo.baseDir, 'src/resolver/*')],
+      // resolvers: [path.resolve(appInfo.baseDir, 'lib/resolver/*.reslover.ts')],
+      resolvers: [AppUserResolver],
     },
     path: '/graphql',
-  };
-
-  config.graphql = graphql;
+  } as CreateGraphQLMiddlewareOption;
   // #endregion
 
   // use for cookie sign key, should change to your own and keep security

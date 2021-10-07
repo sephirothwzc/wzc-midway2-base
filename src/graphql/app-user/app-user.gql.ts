@@ -14,7 +14,7 @@ export default class AppUser {
 @ObjectType()
 export class AppUserList {
   @Field(() => [AppUser])
-  list: AppUser[];
+  list: Array<AppUser>;
 
   @Field(() => Int, { nullable: true })
   count: number;

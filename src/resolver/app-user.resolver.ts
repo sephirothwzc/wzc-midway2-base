@@ -1,72 +1,65 @@
 import { Provide, Inject } from '@midwayjs/decorator';
-import { Resolver, Query, Arg, Int, Mutation } from 'type-graphql';
-
+import Bb from 'bluebird';
+import { Resolver, Query, Arg, Int, Mutation, ID } from 'type-graphql';
 import AppUser, {
   AppUserSaveIn,
   AppUserList,
 } from '../graphql/app-user/app-user.gql';
 import QueryListParam from '../graphql/utils/query-list-param.gql';
-
-/**
- *
- *   # 用户 总行数
-  appUserCount(param: QueryListParam): Int
-  # 用户 分页查询
-  appUserList(param: QueryListParam): AppUserList
-  # 用户  id 获取
-  appUser(id: ID!): AppUser
-  # 用户 有条件返回
-  appUserAll(param: QueryListParam): [AppUser]
- *
- */
+import { AppUserService } from '../service/app-user.service';
+import { AppUser as AppUserEntity } from '../lib/model/app-user.entity';
 
 @Provide()
 @Resolver(() => AppUser)
 export default class AppUserResolver {
-  @Query(() => Int)
-  appUserCount(
+  @Inject()
+  appUserService: AppUserService;
+
+  @Query(type => Int)
+  async appUserCount(
     @Arg('param', () => QueryListParam, { nullable: true })
     param: QueryListParam
-  ): number {
-    return this.mockUser.slice(offset, offset + take);
+  ): Promise<number> {
+    return this.appUserService.findCount(param);
   }
 
-  @Query(returns => User, { nullable: true })
-  GetUserById(@Arg('id', type => Int) id: number): User {
-    return this.mockUser.find(value => value.id === id);
+  @Query(returns => AppUserList, { nullable: true })
+  async appUserList(
+    @Arg('param', type => QueryListParam) param: QueryListParam
+  ): Promise<AppUserList> {
+    return Bb.props({
+      list: this.appUserService.findAll(param) as any,
+      count: this.appUserService.findCount(param),
+    });
   }
 
-  @Mutation(returns => User, { nullable: true })
-  CreateUser(
-    @Arg('createParams', type => UserCreateInput) createParams: UserCreateInput
+  @Query(returns => AppUser, { nullable: true })
+  async appUser(@Arg('id', type => ID) id: string): Promise<AppUser> {
+    return this.appUserService.findByPk(id);
+  }
+  @Query(returns => [AppUser], { nullable: true })
+  async appUserAll(
+    @Arg('param', type => QueryListParam) param: QueryListParam
+  ): Promise<Array<AppUser>> {
+    return this.appUserService.findAll(param) as any;
+  }
+
+  @Mutation(returns => AppUser, {
+    name: 'appUser',
+  })
+  async appUserSave(@Arg('param', type => AppUserSaveIn) param: AppUserEntity) {
+    return this.appUserService.save(param);
+  }
+
+  @Mutation(returns => [AppUser], { nullable: true })
+  async appUserBulk(
+    @Arg('param', type => [AppUserSaveIn]!) param: [AppUserEntity]
   ) {
-    const len = this.mockUser.length;
-    const id = this.mockUser[len - 1].id + 1;
-    const createdUser = {
-      id,
-      name: createParams.name,
-    };
-    this.mockUser.push(createdUser);
-
-    return createdUser;
+    return this.appUserService.bulkSave(param);
   }
 
-  @Mutation(returns => User, { nullable: true })
-  UpdateUser(
-    @Arg('updateParams', type => UserUpdateInput) updateParams: UserUpdateInput
-  ): User {
-    const updateItem = this.mockUser.find(val => val.id === updateParams.id);
-    updateItem.name = updateParams.name;
-
-    return updateItem;
-  }
-
-  @Mutation(returns => User, { nullable: true })
-  DeleteUser(@Arg('id', type => Int) id: number): User {
-    const deleteItem = this.mockUser.find(val => val.id === id);
-    const deleteIdx = this.mockUser.indexOf(deleteItem);
-
-    this.mockUser.splice(deleteIdx, 1);
-    return deleteItem;
+  @Mutation(returns => String, { nullable: true })
+  async appUserDestroy(@Arg('id', type => ID!) id: string) {
+    return this.appUserService.destroyById(id);
   }
 }

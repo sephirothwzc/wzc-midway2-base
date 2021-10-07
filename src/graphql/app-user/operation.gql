@@ -15,5 +15,5 @@ extend type mutation {
   # 终端用户 批量 新增 or 修改
   appUserBulk(param: [AppUserSaveIn]!): [AppUser]
   # 终端用户 根据id删除
-  appUserDestroy(id: String): String
+  appUserDestroy(id: ID!): String
 }

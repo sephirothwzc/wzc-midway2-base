@@ -1,9 +1,3 @@
-/*
- * @Author: zhanchao.wu
- * @Date: 2020-08-15 21:16:00
- * @Last Modified by: zhanchao.wu
- * @Last Modified time: 2020-12-02 19:12:49
- */
 import { Provide, Inject, Config } from '@midwayjs/decorator';
 import { Transaction } from 'sequelize';
 import { SnowFlake } from '../utils/flake-id';
