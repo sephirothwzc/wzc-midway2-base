@@ -5,11 +5,11 @@ import {
   GqlObjectTypeBase,
 } from '../../lib/base/gql-type.base';
 import { AppOrderEntity } from '../../lib/model/app-order.entity';
-import { AppUser } from '../../lib/model/app-user.entity';
+import { AppUserEntity } from '../../lib/model/app-user.entity';
 import { AppOrder } from '../app-order/app-order.gql';
 
 @ObjectType()
-export default class GqlAppUser extends GqlObjectTypeBase {
+export default class AppUser extends GqlObjectTypeBase {
   @Field(() => Boolean)
   name!: boolean;
 
@@ -18,9 +18,9 @@ export default class GqlAppUser extends GqlObjectTypeBase {
 }
 
 @ObjectType()
-export class GqlAppUserList {
-  @Field(() => [GqlAppUser], { nullable: true })
-  list: Array<AppUser>;
+export class AppUserList {
+  @Field(() => [AppUser], { nullable: true })
+  list: Array<AppUserEntity>;
 
   @Field(() => Int, { nullable: true })
   count: number;

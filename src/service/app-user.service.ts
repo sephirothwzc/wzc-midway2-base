@@ -1,10 +1,10 @@
 import { Provide } from '@midwayjs/decorator';
 import ServiceGenericBase from '../lib/base/service-generic.base';
-import { AppUser } from '../lib/model/app-user.entity';
+import { AppUserEntity } from '../lib/model/app-user.entity';
 
 @Provide()
-export class AppUserService extends ServiceGenericBase<AppUser> {
+export class AppUserService extends ServiceGenericBase<AppUserEntity> {
   get Entity() {
-    return AppUser;
+    return AppUserEntity;
   }
 }

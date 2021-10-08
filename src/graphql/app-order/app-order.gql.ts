@@ -5,7 +5,6 @@ import {
   GqlObjectTypeBase,
 } from '../../lib/base/gql-type.base';
 import { AppOrderEntity } from '../../lib/model/app-order.entity';
-import { AppUser } from '../../lib/model/app-user.entity';
 
 @ObjectType()
 export class AppOrder extends GqlObjectTypeBase {
@@ -18,9 +17,9 @@ export class AppOrder extends GqlObjectTypeBase {
 }
 
 @ObjectType()
-export class GqlAppUserList {
-  @Field(() => [AppUser])
-  list: Array<AppUser>;
+export class AppOrderList {
+  @Field(() => [AppOrder])
+  list: Array<AppOrderEntity>;
 
   @Field(() => Int, { nullable: true })
   count: number;

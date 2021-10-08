@@ -1,10 +1,10 @@
 import { Column, HasMany } from 'sequelize-typescript';
+import { EntityBase } from '../base/entity.base';
 import { BaseTable } from '@midwayjs/sequelize';
 import { AppOrderEntity } from './app-order.entity';
-import { EntityBase } from '../base/entity.base';
 
 @BaseTable({ tableName: 'app_user' })
-export class AppUser extends EntityBase {
+export class AppUserEntity extends EntityBase {
   /**
    * 生日
    */

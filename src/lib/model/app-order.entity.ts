@@ -1,20 +1,14 @@
-import { Column, Model, BelongsTo, ForeignKey } from 'sequelize-typescript';
-import { StaticSnowFlake } from '../utils/flake-id';
+import { Column, BelongsTo, ForeignKey } from 'sequelize-typescript';
+import { EntityBase } from '../base/entity.base';
 import { BaseTable } from '@midwayjs/sequelize';
-import { AppUser } from './app-user.entity';
+import { AppUserEntity } from './app-user.entity';
 
 @BaseTable({ tableName: 'app_order' })
-export class AppOrderEntity extends Model {
-  @Column({
-    primaryKey: true,
-    autoIncrement: false,
-    defaultValue: () => StaticSnowFlake.next(),
-  })
-  id: string;
+export class AppOrderEntity extends EntityBase {
   /**
    * 用户id
    */
-  @ForeignKey(() => AppUser)
+  @ForeignKey(() => AppUserEntity)
   @Column({
     comment: '用户id',
   })
@@ -69,6 +63,6 @@ export class AppOrderEntity extends Model {
   })
   version?: number;
 
-  @BelongsTo(() => AppUser, 'app_user_id')
-  AppUserIdObj: AppUser;
+  @BelongsTo(() => AppUserEntity, 'app_user_id')
+  AppUserIdObj: AppUserEntity;
 }
