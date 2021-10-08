@@ -1,16 +1,10 @@
-import { Column, Model, HasMany } from 'sequelize-typescript';
-import { StaticSnowFlake } from '../utils/flake-id';
+import { Column, HasMany } from 'sequelize-typescript';
 import { BaseTable } from '@midwayjs/sequelize';
-import { AppOrder } from './app-order.entity';
+import { AppOrderEntity } from './app-order.entity';
+import { EntityBase } from '../base/entity.base';
 
 @BaseTable({ tableName: 'app_user' })
-export class AppUser extends Model {
-  @Column({
-    primaryKey: true,
-    autoIncrement: false,
-    defaultValue: () => StaticSnowFlake.next(),
-  })
-  id: string;
+export class AppUser extends EntityBase {
   /**
    * 生日
    */
@@ -96,6 +90,6 @@ export class AppUser extends Model {
   })
   unionid?: string;
 
-  @HasMany(() => AppOrder, 'app_user_id')
-  appOrderAppUserId: Array<AppOrder>;
+  @HasMany(() => AppOrderEntity, 'app_user_id')
+  appOrderAppUserId: Array<AppOrderEntity>;
 }

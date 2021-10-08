@@ -4,7 +4,7 @@ import { BaseTable } from '@midwayjs/sequelize';
 import { AppUser } from './app-user.entity';
 
 @BaseTable({ tableName: 'app_order' })
-export class AppOrder extends Model {
+export class AppOrderEntity extends Model {
   @Column({
     primaryKey: true,
     autoIncrement: false,

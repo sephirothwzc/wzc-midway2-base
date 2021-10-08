@@ -4,16 +4,16 @@ extend type query {
   # 用户 分页查询
   appUserList(param: QueryListParam): AppUserList
   # 用户  id 获取
-  appUser(id: ID!): AppUser
+  appUser(id: ID!): GqlAppUser
   # 用户 有条件返回
-  appUserAll(param: QueryListParam): [AppUser]
+  appUserAll(param: QueryListParam): [GqlAppUser]
 }
 
 extend type mutation {
   # 终端用户 新增 or 修改
-  appUser(param: AppUserSaveIn!): AppUser
+  appUser(param: AppUserSaveIn!): GqlAppUser
   # 终端用户 批量 新增 or 修改
-  appUserBulk(param: [AppUserSaveIn]!): [AppUser]
+  appUserBulk(param: [AppUserSaveIn]!): [GqlAppUser]
   # 终端用户 根据id删除
   appUserDestroy(id: ID!): String
 }
