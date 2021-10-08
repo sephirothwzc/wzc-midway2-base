@@ -1,19 +1,21 @@
+# 查询
 extend type query {
-  # 用户 总行数
+  # appUser 总行数
   appUserCount(param: QueryListParam): Int
-  # 用户 分页查询
+  # appUser 分页查询
   appUserList(param: QueryListParam): AppUserList
-  # 用户  id 获取
-  appUser(id: ID!): GqlAppUser
-  # 用户 有条件返回
-  appUserAll(param: QueryListParam): [GqlAppUser]
+  # appUser  id 获取
+  appUser(id: ID!): AppUser
+  # appUser 有条件返回
+  appUserAll(param: QueryListParam): [AppUser]
 }
 
+# 操作
 extend type mutation {
-  # 终端用户 新增 or 修改
-  appUser(param: AppUserSaveIn!): GqlAppUser
-  # 终端用户 批量 新增 or 修改
-  appUserBulk(param: [AppUserSaveIn]!): [GqlAppUser]
-  # 终端用户 根据id删除
+  # appUser 新增 or 修改
+  appUser(param: AppUserSaveIn!): AppUser
+  # appUser 批量 新增 or 修改
+  appUserBulk(param: [AppUserSaveIn]!): [AppUser]
+  # appUser 根据id删除
   appUserDestroy(id: ID!): String
 }

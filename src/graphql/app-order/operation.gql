@@ -1,0 +1,21 @@
+# 查询
+extend type query {
+  # appOrder 总行数
+  appOrderCount(param: QueryListParam): Int
+  # appOrder 分页查询
+  appOrderList(param: QueryListParam): AppOrderList
+  # appOrder  id 获取
+  appOrder(id: ID!): AppOrder
+  # appOrder 有条件返回
+  appOrderAll(param: QueryListParam): [AppOrder]
+}
+
+# 操作
+extend type mutation {
+  # appOrder 新增 or 修改
+  appOrder(param: AppOrderSaveIn!): AppOrder
+  # appOrder 批量 新增 or 修改
+  appOrderBulk(param: [AppOrderSaveIn]!): [AppOrder]
+  # appOrder 根据id删除
+  appOrderDestroy(id: ID!): String
+}

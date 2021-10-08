@@ -1,7 +1,6 @@
 import { EggAppConfig, EggAppInfo, PowerPartial } from 'egg';
 import { CreateGraphQLMiddlewareOption } from 'apollo-server-midway';
-// import path from 'path';
-import AppUserResolver from '../resolver/app-user.resolver';
+import path from 'path';
 
 export type DefaultConfig = PowerPartial<EggAppConfig>;
 
@@ -14,8 +13,7 @@ export default (appInfo: EggAppInfo) => {
   // #region graphql
   config.graphql = {
     schema: {
-      // resolvers: [path.resolve(appInfo.baseDir, 'lib/resolver/*.reslover.ts')],
-      resolvers: [AppUserResolver],
+      resolvers: [path.resolve(appInfo.baseDir, 'lib/resolver/*.reslover.ts')],
     },
     path: '/graphql',
   } as CreateGraphQLMiddlewareOption;
