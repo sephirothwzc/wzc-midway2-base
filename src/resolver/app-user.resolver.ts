@@ -1,13 +1,14 @@
 import { Provide, Inject } from '@midwayjs/decorator';
 import Bb from 'bluebird';
 import { Resolver, Query, Arg, Int, Mutation, ID } from 'type-graphql';
-import AppUser, {
+import {
+  AppUser,
   AppUserSaveIn,
   AppUserList,
 } from '../graphql/app-user/app-user.gql';
 import QueryListParam from '../graphql/utils/query-list-param.gql';
 import { AppUserService } from '../service/app-user.service';
-import { AppUser as AppUserEntity } from '../lib/model/app-user.entity';
+import { AppUserEntity } from '../lib/model/app-user.entity';
 
 @Provide()
 @Resolver(() => AppUser)
