@@ -1,7 +1,7 @@
 import { App, Configuration } from '@midwayjs/decorator';
 import { ILifeCycle } from '@midwayjs/core';
 import { join } from 'path';
-import sequelize from '@midwayjs/sequelize';
+import * as sequelize from '@midwayjs/sequelize';
 /**
  * 必须为*引用 shit
  */

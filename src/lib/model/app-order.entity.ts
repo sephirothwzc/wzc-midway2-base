@@ -3,7 +3,7 @@ import { StaticSnowFlake } from '../utils/flake-id';
 import { BaseTable } from '@midwayjs/sequelize';
 import { AppUser } from './app-user.entity';
 
-@BaseTable
+@BaseTable({ tableName: 'app_order' })
 export class AppOrder extends Model {
   @Column({
     primaryKey: true,

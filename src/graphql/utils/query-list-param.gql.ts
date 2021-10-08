@@ -4,19 +4,25 @@ import { IsNumber, Min } from 'class-validator';
 
 @InputType()
 export default class QueryListParam {
-  @Field(() => GraphQLJSONObject, { description: '查询条件 Op = _' })
+  @Field(() => GraphQLJSONObject, {
+    nullable: true,
+    description: '查询条件 Op = _',
+  })
   where?: Record<string, unknown>;
 
-  @Field(() => [[String, String]], { description: '排序 ASC DESC' })
+  @Field(() => [[String, String]], {
+    nullable: true,
+    description: '排序 ASC DESC',
+  })
   order?: [[string, string]];
 
   @IsNumber()
   @Min(0)
-  @Field(() => Int)
+  @Field(() => Int, { nullable: true })
   limit?: number;
 
   @IsNumber()
   @Min(0)
-  @Field(() => Int)
+  @Field(() => Int, { nullable: true })
   offset?: number;
 }

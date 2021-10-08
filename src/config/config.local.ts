@@ -17,7 +17,12 @@ export const sequelize = {
     password: 'eegDed-gbdacu3-ntuplw',
     encrypt: false,
     dialect: 'mysql',
-    define: { charset: 'utf8' },
+    define: {
+      timestamps: true,
+      paranoid: true,
+      charset: 'utf8',
+      underscored: true,
+    },
     timezone: '+08:00',
     logging: console.log,
   },

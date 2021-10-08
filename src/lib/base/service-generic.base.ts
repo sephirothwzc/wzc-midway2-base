@@ -1,4 +1,4 @@
-import { Provide, Inject, Config } from '@midwayjs/decorator';
+import { Provide, Inject, Config, Logger } from '@midwayjs/decorator';
 import { Transaction } from 'sequelize';
 import { SnowFlake } from '../utils/flake-id';
 import Bb from 'bluebird';
@@ -37,9 +37,10 @@ export default abstract class ServiceGenericBase<T extends Model> {
   sequelizeQuery: SequelizeQuery;
 
   /**
-   * context 级别
+   * Logger: appLogger 级别
+   * Inject: context   级别
    */
-  @Inject()
+  @Logger()
   logger: ILogger;
 
   /**
