@@ -28,15 +28,18 @@ export default class AppUserResolver {
   async appUserList(
     @Arg('param', type => QueryListParam, { nullable: true })
     param: QueryListParam
-  ): Promise<AppUserList> {
+  ): Promise<{
+    list: AppUserEntity[];
+    count: number;
+  }> {
     return Bb.props({
-      list: this.appUserService.findAll(param) as any,
+      list: this.appUserService.findAll(param),
       count: this.appUserService.findCount(param),
     });
   }
 
   @Query(returns => AppUser, { nullable: true })
-  async appUser(@Arg('id', type => ID) id: string): Promise<AppUser> {
+  async appUser(@Arg('id', type => ID) id: string): Promise<AppUserEntity> {
     return this.appUserService.findByPk(id);
   }
   @Query(returns => [AppUser])
@@ -50,19 +53,21 @@ export default class AppUserResolver {
   @Mutation(returns => AppUser, {
     name: 'appUser',
   })
-  async appUserSave(@Arg('param', type => AppUserSaveIn) param: AppUserEntity) {
+  async appUserSave(
+    @Arg('param', type => AppUserSaveIn) param: AppUserEntity
+  ): Promise<AppUserEntity> {
     return this.appUserService.save(param);
   }
 
   @Mutation(returns => [AppUser], { nullable: true })
   async appUserBulk(
     @Arg('param', type => [AppUserSaveIn]) param: [AppUserEntity]
-  ) {
+  ): Promise<AppUserEntity[]> {
     return this.appUserService.bulkSave(param);
   }
 
   @Mutation(returns => String, { nullable: true })
-  async appUserDestroy(@Arg('id', type => ID) id: string) {
+  async appUserDestroy(@Arg('id', type => ID) id: string): Promise<void> {
     return this.appUserService.destroyById(id);
   }
 }
